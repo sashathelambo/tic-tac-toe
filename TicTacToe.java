@@ -99,6 +99,8 @@ public class TicTacToe {
                 } else if (board[row][col] == 'X' || board[row][col] == 'O') {
                     System.out.println("That move is invalid!");
                 } else {
+                    // Place the player's mark ('X' or 'O') on the board
+                    board[row][col] = currentPlayer;
                     break; // Move is valid, so exit the loop
                 }
             } catch (InputMismatchException e) {
@@ -109,9 +111,6 @@ public class TicTacToe {
                 scanner.next(); // Clear the invalid input
             }
         }
-
-        // Place the player's mark ('X' or 'O') on the board
-        board[(move - 1) / 3][(move - 1) % 3] = currentPlayer;
     }
 
     // Switch to the other player (if 'X' switch to 'O', and vice versa)
