@@ -7,6 +7,7 @@ public class TicTacToe {
     private static final char[][] board = new char[3][3];
     // Set the current player to 'X' (the game starts with player 'X')
     private static char currentPlayer = 'X';
+    private static int i; // Declare i outside of the loop
 
     public static void main(String[] args) {
         // Display instructions on how to play and move
@@ -57,7 +58,7 @@ public class TicTacToe {
     // Set up the board with empty cells
     private static void initializeBoard() {
         int cellNumber = 1;
-        for (int i = 0; i < 3; i++) {
+        for (i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 board[i][j] = (char) (cellNumber + '0'); // Use cell numbers 1-9
                 cellNumber++;
@@ -67,7 +68,7 @@ public class TicTacToe {
 
     // Print the current state of the board
     private static void printBoard() {
-        for (int i = 0; i < 3; i++) {
+        for (i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 System.out.print(board[i][j]);
                 if (j < 2) System.out.print(" | ");
@@ -125,7 +126,7 @@ public class TicTacToe {
     // Check if the current player has won the game
     private static boolean checkWin() {
         // Check rows and columns for a win
-        for (int i = 0; i < 3; i++) {
+        for (i = 0; i < 3; i++) {
             if ((board[i][0] == currentPlayer && board[i][1] == currentPlayer && board[i][2] == currentPlayer) ||
                 (board[0][i] == currentPlayer && board[1][i] == currentPlayer && board[2][i] == currentPlayer)) {
                 return true;
@@ -139,7 +140,7 @@ public class TicTacToe {
 
     // Check if the board is full (meaning no more moves can be made)
     private static boolean isBoardFull() {
-        for (int i = 0; i < 3; i++) {
+        for (i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (board[i][j] != 'X' && board[i][j] != 'O') {
                     return false; // If there's an empty cell, the board is not full
