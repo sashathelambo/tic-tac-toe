@@ -6,12 +6,17 @@ public class TicTacToe {
     // Create the game board as a 3x3 grid
     private static final char[][] board = new char[3][3];
     // Set the current player to 'X' (the game starts with player 'X')
-    private static char currentPlayer = 'X';
+    private static char currentPlayer;
+    private static char playerOne;
+    private static char playerTwo;
     private static int i; // Declare i outside of the loop
 
     public static void main(String[] args) {
         // Display instructions on how to play and move
         displayInstructions();
+        
+        // Choose player symbols
+        choosePlayerSymbols();
         
         // Set up the empty board at the start of the game
         initializeBoard();
@@ -27,7 +32,7 @@ public class TicTacToe {
 
             // Check if the current player has won
             if (checkWin()) {
-                System.out.println("Player " + (currentPlayer == 'X' ? "one" : "two") + " wins!");
+                System.out.println("Player " + (currentPlayer == playerOne ? "one" : "two") + " wins!");
                 break; // End the game if there's a winner
             }
 
@@ -47,12 +52,36 @@ public class TicTacToe {
         System.out.println("Welcome to Tic Tac Toe!");
         System.out.println("Here's how to play:");
         System.out.println("1. The game is played on a 3x3 grid.");
-        System.out.println("2. Player one (X) goes first, followed by Player two (O).");
-        System.out.println("3. Players take turns placing their mark (X or O) in an empty cell.");
-        System.out.println("4. To make a move, enter the number corresponding to the cell (1-9).");
-        System.out.println("5. The first player to get 3 of their marks in a row (horizontally, vertically, or diagonally) wins.");
-        System.out.println("6. If all 9 cells are filled and no player has 3 marks in a row, the game is a draw.");
+        System.out.println("2. Players take turns placing their mark (X or O) in an empty cell.");
+        System.out.println("3. To make a move, enter the number corresponding to the cell (1-9).");
+        System.out.println("4. The first player to get 3 of their marks in a row (horizontally, vertically, or diagonally) wins.");
+        System.out.println("5. If all 9 cells are filled and no player has 3 marks in a row, the game is a draw.");
+        System.out.println("6. Type 'ESC' at any time to terminate the program.");
         System.out.println("Let's start the game!");
+    }
+
+    // Choose player symbols
+    private static void choosePlayerSymbols() {
+        Scanner scanner = new Scanner(System.in);
+        OUTER:
+        while (true) {
+            System.out.println("Player one, do you want to be X or O?");
+            String input = scanner.nextLine().toUpperCase();
+            switch (input) {
+                case "X":
+                case "O":
+                    playerOne = input.charAt(0);
+                    playerTwo = (playerOne == 'X') ? 'O' : 'X';
+                    currentPlayer = playerOne;
+                    break OUTER;
+                case "ESC":
+                    System.out.println("Game terminated.");
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid input! Please enter X or O.");
+                    break;
+            }
+        }
     }
 
     // Set up the board with empty cells
@@ -85,9 +114,14 @@ public class TicTacToe {
 
         // Keep asking for a valid move until the player makes one
         while (true) {
-            System.out.println("Player " + (currentPlayer == 'X' ? "one" : "two") + " - where would you like to move?");
+            System.out.println("Player " + (currentPlayer == playerOne ? "one" : "two") + " - where would you like to move?");
             try {
-                move = scanner.nextInt();
+                String input = scanner.nextLine().toUpperCase();
+                if (input.equals("ESC")) {
+                    System.out.println("Game terminated.");
+                    System.exit(0);
+                }
+                move = Integer.parseInt(input);
 
                 // Convert move to row and column
                 int row = (move - 1) / 3;
@@ -103,23 +137,17 @@ public class TicTacToe {
                     board[row][col] = currentPlayer;
                     break; // Move is valid, so exit the loop
                 }
-            } catch (InputMismatchException e) {
+            } catch (InputMismatchException | NumberFormatException e) {
                 System.out.println("Invalid input! Please enter a number between 1 and 9.");
-                scanner.next(); // Clear the invalid input
             } catch (NoSuchElementException e) {
                 System.out.println("No input received! Please enter a number between 1 and 9.");
-                scanner.next(); // Clear the invalid input
             }
         }
     }
 
     // Switch to the other player (if 'X' switch to 'O', and vice versa)
     private static void switchPlayer() {
-        if (currentPlayer == 'X') {
-            currentPlayer = 'O';
-        } else {
-            currentPlayer = 'X';
-        }
+        currentPlayer = (currentPlayer == playerOne) ? playerTwo : playerOne;
     }
 
     // Check if the current player has won the game
