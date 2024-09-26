@@ -56,7 +56,6 @@ public class TicTacToe {
         System.out.println("3. To make a move, enter the number corresponding to the cell (1-9).");
         System.out.println("4. The first player to get 3 of their marks in a row (horizontally, vertically, or diagonally) wins.");
         System.out.println("5. If all 9 cells are filled and no player has 3 marks in a row, the game is a draw.");
-        System.out.println("6. Type 'ESC' at any time to terminate the program.");
         System.out.println("Let's start the game!");
     }
 
@@ -74,9 +73,6 @@ public class TicTacToe {
                     playerTwo = (playerOne == 'X') ? 'O' : 'X';
                     currentPlayer = playerOne;
                     break OUTER;
-                case "ESC":
-                    System.out.println("Game terminated.");
-                    System.exit(0);
                 default:
                     System.out.println("Invalid input! Please enter X or O.");
                     break;
@@ -117,10 +113,6 @@ public class TicTacToe {
             System.out.println("Player " + (currentPlayer == playerOne ? "one" : "two") + " - where would you like to move?");
             try {
                 String input = scanner.nextLine().toUpperCase();
-                if (input.equals("ESC")) {
-                    System.out.println("Game terminated.");
-                    System.exit(0);
-                }
                 move = Integer.parseInt(input);
 
                 // Convert move to row and column
