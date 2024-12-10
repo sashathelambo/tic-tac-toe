@@ -4,11 +4,11 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class TicTacToe {
-    private static final int BOARD_SIZE = 3;
-    private static final char[][] board = new char[BOARD_SIZE][BOARD_SIZE];
-    private static char currentPlayer;
-    private static char playerOne;
-    private static char playerTwo;
+    public static final int BOARD_SIZE = 3;
+    static final char[][] board = new char[BOARD_SIZE][BOARD_SIZE];
+    static char currentPlayer;
+    static char playerOne;
+    static char playerTwo;
     private static boolean playAgainstComputer;
 
     public static void main(String[] args) {
@@ -32,11 +32,14 @@ public class TicTacToe {
                 initializeBoard();
                 printBoard();
 
+                Player player1 = new HumanPlayer(playerOne, scanner);
+                Player player2 = playAgainstComputer ? new ComputerPlayer(playerTwo) : new HumanPlayer(playerTwo, scanner);
+
                 while (true) {
-                    if (playAgainstComputer && currentPlayer == playerTwo) {
-                        computerMove();
+                    if (currentPlayer == playerOne) {
+                        player1.makeMove(board);
                     } else {
-                        playerMove(scanner);
+                        player2.makeMove(board);
                     }
                     printBoard();
 
@@ -79,7 +82,7 @@ public class TicTacToe {
     private static void displayInstructions() {
         System.out.println("Here's how to play:");
         System.out.println("1. The game is played on a 3x3 grid.");
-        System.out.println("2. Players take turns placing their mark (X or O) in an empty cell.");
+        System.out.println("2. Players take turns placing their mark in an empty cell.");
         System.out.println("3. To make a move, enter the number corresponding to the cell (1-9).");
         System.out.println("4. The first player to get 3 of their marks in a row (horizontally, vertically, or diagonally) wins.");
         System.out.println("5. If all 9 cells are filled and no player has 3 marks in a row, the game is a draw.");
@@ -88,17 +91,34 @@ public class TicTacToe {
 
     private static void choosePlayerSymbols(Scanner scanner) {
         while (true) {
-            System.out.println("Player one, do you want to be X or O?");
-            String input = scanner.nextLine().toLowerCase();
-            if (input.equals("x") || input.equals("o")) {
-                playerOne = input.toUpperCase().charAt(0);
-                playerTwo = (playerOne == 'X') ? 'O' : 'X';
-                currentPlayer = playerOne;
-                return;
+            System.out.println("Player one, choose your mark (one character only, no whitespace):");
+            String input = scanner.nextLine();
+            if (isValidMark(input)) {
+                playerOne = input.charAt(0);
+                break;
             } else {
-                System.out.println("Invalid input! Please enter X or O.");
+                System.out.println("Invalid mark! Please enter a single non-whitespace character.");
             }
         }
+
+        while (true) {
+            System.out.println("Player " + (playAgainstComputer ? "computer" : "two") + 
+                             ", choose your mark (one character only, no whitespace):");
+            String input = scanner.nextLine();
+            if (isValidMark(input) && input.charAt(0) != playerOne) {
+                playerTwo = input.charAt(0);
+                currentPlayer = playerOne;
+                return;
+            } else if (input.length() == 1 && input.charAt(0) == playerOne) {
+                System.out.println("This mark is already taken! Please choose a different mark.");
+            } else {
+                System.out.println("Invalid mark! Please enter a single non-whitespace character.");
+            }
+        }
+    }
+
+    private static boolean isValidMark(String input) {
+        return input.length() == 1 && !Character.isWhitespace(input.charAt(0));
     }
 
     private static void initializeBoard() {
@@ -122,50 +142,6 @@ public class TicTacToe {
         }
     }
 
-    private static void playerMove(Scanner scanner) {
-        while (true) {
-            System.out.println("Player " + (currentPlayer == playerOne ? "one" : "two") + " - where would you like to move?");
-            try {
-                int move = Integer.parseInt(scanner.nextLine());
-                int row = (move - 1) / BOARD_SIZE;
-                int col = (move - 1) % BOARD_SIZE;
-
-                if (move < 1 || move > BOARD_SIZE * BOARD_SIZE) {
-                    System.out.println("That move is invalid!");
-                } else if (board[row][col] == 'X' || board[row][col] == 'O') {
-                    System.out.println("That move is invalid!");
-                } else {
-                    board[row][col] = currentPlayer;
-                    break;
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input! Please enter a number between 1 and 9.");
-                scanner.nextLine(); 
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input! Please enter a number between 1 and 9.");
-                scanner.nextLine(); 
-            } catch (NoSuchElementException e) {
-                System.out.println("No input received! Please try again.");
-              
-            }
-        }
-    }
-
-    private static void computerMove() {
-        Random random = new Random();
-        int move;
-        while (true) {
-            move = random.nextInt(BOARD_SIZE * BOARD_SIZE) + 1;
-            int row = (move - 1) / BOARD_SIZE;
-            int col = (move - 1) % BOARD_SIZE;
-            if (board[row][col] != 'X' && board[row][col] != 'O') {
-                board[row][col] = currentPlayer;
-                System.out.println("Computer moves to " + move);
-                break;
-            }
-        }
-    }
-
     private static void switchPlayer() {
         currentPlayer = (currentPlayer == playerOne) ? playerTwo : playerOne;
     }
@@ -184,11 +160,85 @@ public class TicTacToe {
     private static boolean isBoardFull() {
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
-                if (board[i][j] != 'X' && board[i][j] != 'O') {
+                if (board[i][j] != playerOne && board[i][j] != playerTwo) {
                     return false;
                 }
             }
         }
         return true;
+    }
+}
+
+abstract class Player {
+    protected char symbol;
+
+    public Player(char symbol) {
+        this.symbol = symbol;
+    }
+
+    public abstract void makeMove(char[][] board);
+}
+
+class HumanPlayer extends Player {
+    private Scanner scanner;
+
+    public HumanPlayer(char symbol, Scanner scanner) {
+        super(symbol);
+        this.scanner = scanner;
+    }
+
+    @Override
+    public void makeMove(char[][] board) {
+        while (true) {
+            System.out.println("Player " + (symbol == TicTacToe.playerOne ? "one" : "two") + " - where would you like to move?");
+            try {
+                int move = Integer.parseInt(scanner.nextLine());
+                int row = (move - 1) / TicTacToe.BOARD_SIZE;
+                int col = (move - 1) % TicTacToe.BOARD_SIZE;
+
+                if (move < 1 || move > TicTacToe.BOARD_SIZE * TicTacToe.BOARD_SIZE) {
+                    System.out.println("That move is invalid!");
+                } else if (board[row][col] == TicTacToe.playerOne || board[row][col] == TicTacToe.playerTwo) {
+                    System.out.println("That move is invalid!");
+                } else {
+                    board[row][col] = symbol;
+                    TicTacToe.currentPlayer = symbol;
+                    break;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input! Please enter a number between 1 and 9.");
+                scanner.nextLine(); 
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a number between 1 and 9.");
+                scanner.nextLine(); 
+            } catch (NoSuchElementException e) {
+                System.out.println("No input received! Please try again.");
+            }
+        }
+    }
+}
+
+class ComputerPlayer extends Player {
+    private Random random;
+
+    public ComputerPlayer(char symbol) {
+        super(symbol);
+        this.random = new Random();
+    }
+
+    @Override
+    public void makeMove(char[][] board) {
+        int move;
+        while (true) {
+            move = random.nextInt(TicTacToe.BOARD_SIZE * TicTacToe.BOARD_SIZE) + 1;
+            int row = (move - 1) / TicTacToe.BOARD_SIZE;
+            int col = (move - 1) % TicTacToe.BOARD_SIZE;
+            if (board[row][col] != TicTacToe.playerOne && board[row][col] != TicTacToe.playerTwo) {
+                board[row][col] = symbol;
+                TicTacToe.currentPlayer = symbol;
+                System.out.println("Computer moves to " + move);
+                break;
+            }
+        }
     }
 }
